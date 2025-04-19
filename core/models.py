@@ -17,6 +17,9 @@ class Question(BaseModel):
     author = models.ForeignKey(User, on_delete = models.CASCADE)
     question = models.TextField(blank = True, null = False, help_text = "Write the main content of the post here.")
 
+    class Meta:
+        verbose_name_plural = "Questions"
+
     
 class Answer(models.Model):
     pass
