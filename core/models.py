@@ -38,7 +38,6 @@ class Question(BaseModel):
         verbose_name_plural = "Questions"
     
     def __str__(self):
-        
         return "{} - {}".format(self.author.username, textwrap.shorten(self.question, width=25, placeholder="..."))
 
     
