@@ -1,29 +1,6 @@
-import uuid
+import uuid, textwrap
 from django.db import models
 from django.contrib.auth.models import User
-
-# Create your models here.
-
-class BaseModel(models.Model):
-    uid = models.UUIDField(default = uuid.uuid4, editable = False, blank = True)
-    created_at = models.DateField(auto_now_add = True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
-
-
-class Question(BaseModel):
-    author = models.ForeignKey(User, on_delete = models.CASCADE)
-    question = models.TextField(blank = True, null = False, help_text = "Write the main content of the post here.")
-
-    class Meta:
-        verbose_name_plural = "Questions"
-
-    
-class Answer(models.Model):
-    pass
-
 
 """
 Note : 
@@ -41,3 +18,39 @@ Note :
 6. models.DO_NOTHING: Django won’t take any action when the Post is deleted. It’s your responsibility to handle the deletion behavior manually, e.g., by using Django signals or custom logic.
 
 """
+
+# Create your models here.
+
+class BaseModel(models.Model):
+    uid = models.UUIDField(default = uuid.uuid4, editable = False, blank = True)
+    created_at = models.DateTimeField(auto_now_add = True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class Question(BaseModel):
+    author = models.ForeignKey(User, on_delete = models.CASCADE, related_name = "question")
+    question = models.TextField(blank = True, null = False, help_text = "Write the main content of the post here.")
+
+    class Meta:
+        verbose_name_plural = "Questions"
+    
+    def __str__(self):
+        return "{} - {}".format(self.author.username, textwrap.shorten(self.question, width=25, placeholder="..."))
+
+    
+class Answer(BaseModel):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name = "answer")
+    user = models.ForeignKey(User, on_delete = models.CASCADE,related_name = "user")
+    answer = models.TextField(blank = True, null = False, help_text = "Write the answer to main content of the post..")
+    likes = models.ManyToManyField(User, related_name = "likes")
+
+    class Meta:
+        verbose_name_plural = "Answers"
+    
+    def __str__(self):
+        return "{} - {}".format(textwrap.shorten(self.question.question, width=25, placeholder="..."),textwrap.shorten(self.answer, width=25, placeholder="..."))
+
+
